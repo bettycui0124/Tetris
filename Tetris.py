@@ -4,9 +4,9 @@ import random
 try:
     import pygame as pg
 except ImportError:
-    audio = None
+    useAudio = None
 else:
-    audio = True
+    useAudio = True
 import sys
 from matrix_rotation import rotate_array as ra
 
@@ -22,13 +22,13 @@ class Shape:
 
 
 class Tetris:
-    def __init__(self, parent, audio):
+    def __init__(self, parent, useAudio):
         self.debug = 'debug' in sys.argv[1:]
         self.random = 'random' in sys.argv[1:]
         parent.title('CS10 Tetris')
         self.parent = parent
-        self.audio = audio
-        if self.audio:  # if the import succeeded
+        self.useAudio = useAudio
+        if self.useAudio:  # if the import succeeded
             pg.mixer.init(buffer=512)
             try:
                 self.sounds = {name: pg.mixer.Sound(name)
@@ -159,7 +159,7 @@ class Tetris:
                        ]
         self.spawning = self.parent.after(self.tickrate, self.spawn)
         self.ticking = self.parent.after(self.tickrate * 2, self.tick)
-        if self.audio and self.audio['m']:
+        if self.useAudio and self.audio['m']:
             self.sounds['music.ogg'].play(loops=-1)
 
     def draw_board(self, event=None):
@@ -327,7 +327,7 @@ class Tetris:
         if any(any(row) for row in self.board[:4]):
             self.lose()
             return
-        if self.audio and self.audio['f'] and not indices:
+        if self.useAudio and self.audio['f'] and not indices:
             self.sounds['settle.ogg'].play()
         self.spawning = self.parent.after(500 if indices and self.tickrate < 500 else self.tickrate, self.spawn)
 
@@ -409,9 +409,9 @@ class Tetris:
 
     def lose(self):
         self.piece_is_active = False
-        if self.audio and self.audio['f']:
+        if self.useAudio and self.audio['f']:
             self.sounds['lose.ogg'].play()
-        if self.audio and self.audio['m']:
+        if self.useAudio and self.audio['m']:
             self.sounds['music.ogg'].stop()
         self.parent.after_cancel(self.ticking)
         self.parent.after_cancel(self.spawning)
@@ -447,7 +447,7 @@ class Tetris:
             self.settle()
 
     def clear(self, indices):
-        if self.audio and self.audio['f']:
+        if self.useAudio and self.audio['f']:
             self.sounds['clear.ogg'].play()
         for idx in indices:
             self.board.pop(idx)
@@ -477,5 +477,5 @@ class Tetris:
 
 
 root = tk.Tk()
-tetris = Tetris(root, audio)
+tetris = Tetris(root, useAudio)
 root.mainloop()
